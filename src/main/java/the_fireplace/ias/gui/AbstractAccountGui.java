@@ -38,9 +38,9 @@ public abstract class AbstractAccountGui extends Screen
 		}));
 		addButton(new Button(this.width / 2 + 2, this.height - 28, 150, 20, I18n.format("gui.cancel"), btn -> escape()));
 		addButton(username = new TextFieldWidget(this.font, this.width / 2 - 100, 60, 200, 20, ""));
-		username.setMaxStringLength(64);
+		username.setMaxStringLength(512);
 		addButton(password = new GuiPasswordField(this.font, this.width / 2 - 100, 90, 200, 20, ""));
-		password.setMaxStringLength(64);
+		password.setMaxStringLength(512);
 		complete.active = false;
 	}
 	
