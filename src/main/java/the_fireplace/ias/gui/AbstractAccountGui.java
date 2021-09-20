@@ -40,9 +40,9 @@ public abstract class AbstractAccountGui extends Screen
 		}));
 		addRenderableWidget(new Button(this.width / 2 + 2, this.height - 28, 150, 20, new TranslatableComponent("gui.cancel"), btn -> escape()));
 		addRenderableWidget(username = new EditBox(this.font, this.width / 2 - 100, 60, 200, 20, new TextComponent("")));
-		username.setMaxLength(64);
+		username.setMaxLength(512);
 		addRenderableWidget(password = new GuiPasswordField(this.font, this.width / 2 - 100, 90, 200, 20, new TextComponent("")));
-		password.setMaxLength(64);
+		password.setMaxLength(512);
 		complete.active = false;
 	}
 	
