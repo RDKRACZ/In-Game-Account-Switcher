@@ -10,18 +10,18 @@ import net.minecraft.util.ResourceLocation;
  * @author The_Fireplace
  */
 public class GuiButtonWithImage extends Button {
+	private static final ResourceLocation customButtonTextures = new ResourceLocation("ias", "textures/gui/custombutton.png");
 
-	private static final ResourceLocation customButtonTextures = new ResourceLocation("ias:textures/gui/custombutton.png");
 	public GuiButtonWithImage(int x, int y, IPressable p) {
-		super(x, y, 20, 20, "", p);
+		super(x, y, 20, 20, "ButterDog", p);
 	}
 	
 	@Override
 	public void renderButton(int mouseX, int mouseY, float delta) {
 		if (this.visible) {
 			Minecraft mc = Minecraft.getInstance();
-			mc.getTextureManager().bindTexture(customButtonTextures);
-			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			mc.textureManager.bindTexture(customButtonTextures);
+			GlStateManager.color4f(1F, 1F, 1F, 1F);
 			this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			int k = getYImage(isHovered);
 			GlStateManager.enableBlend();
