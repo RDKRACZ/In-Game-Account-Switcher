@@ -12,10 +12,8 @@
             "VidTu"
         ],
         "credits": "2xsaiko, Elvm",
+        "updateJSON": "https://raw.githubusercontent.com/VidTuGit/In-Game-Account-Switcher/main/updater-forge.json",
         "logoFile": "iaslogo.png",
-        "screenshots": [],
-        "dependencies": [
-            "CustomMainMenu"
-        ]
+        "screenshots": []
     }
 ]

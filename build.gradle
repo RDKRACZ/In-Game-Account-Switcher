@@ -29,14 +29,18 @@ minecraft {
 }
 
 jar {
+    from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
 	manifest {
 		attributes 'FMLAT': 'ias_at.cfg'
 	}
 }
 
 processResources {
+	inputs.property "version", project.version
 	filesMatching("mcmod.info") {
-		expand "version": System.getProperty("ias.version", "unknown")
+		expand "version": project.version
 	}
 }
 
