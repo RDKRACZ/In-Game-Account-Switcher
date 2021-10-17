@@ -28,9 +28,12 @@ minecraft {
 }
 
 jar {
+    from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
     manifest {
         attributes([
-                "Implementation-Version": System.getProperty("ias.version", "unknown")
+                "Implementation-Version": project.version
         ])
     }
 }
