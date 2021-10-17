@@ -13,7 +13,7 @@ public class GuiButtonWithImage extends ButtonWidget {
 	private static final Identifier customButtonTextures = new Identifier("ias", "textures/gui/custombutton.png");
 
 	public GuiButtonWithImage(int x, int y, PressAction p) {
-		super(x, y, 20, 20, "", p);
+		super(x, y, 20, 20, "ButterDog", p);
 	}
 	
 	@Override
