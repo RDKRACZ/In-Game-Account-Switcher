@@ -8,8 +8,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
-public class GuiPasswordField extends TextFieldWidget
-{
+public class GuiPasswordField extends TextFieldWidget {
 	public GuiPasswordField(FontRenderer fontrendererObj, int x, int y, int par5Width, int par6Height, ITextComponent s)
 	{
 		super(fontrendererObj, x, y, par5Width, par6Height, s);

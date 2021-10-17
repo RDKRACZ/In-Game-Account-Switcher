@@ -1,4 +1,5 @@
 package com.github.mrebhan.ingameaccountswitcher.tools;
+
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.gui.screen.Screen;
@@ -11,8 +12,6 @@ import net.minecraft.client.gui.screen.Screen;
 public class Tools {
 	/**
 	 * Draws a rectangle with a border
-	 * @param ms
-	 * MatrixStack 
 	 * @param x
 	 * First corner x
 	 * @param y

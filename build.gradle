@@ -26,13 +26,16 @@ minecraft {
 }
 
 jar {
+    from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
     manifest {
         attributes([
-                "Implementation-Version": System.getProperty("ias.version", "unknown")
+                "Implementation-Version": project.version
         ])
     }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.4'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.8'
 }

@@ -1,83 +1,111 @@
 package the_fireplace.ias;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.util.Properties;
+import java.util.List;
 
-import com.github.mrebhan.ingameaccountswitcher.MR;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.gson.Gson;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.screen.MultiplayerScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import ru.vidtu.iasfork.IASConfigScreen;
-import the_fireplace.ias.config.ConfigValues;
-import the_fireplace.ias.events.ClientEvents;
-import the_fireplace.ias.tools.SkinTools;
-import the_fireplace.iasencrypt.Standards;
+import ru.vidtu.ias.Config;
+import ru.vidtu.ias.gui.IASConfigScreen;
+import ru.vidtu.ias.utils.Converter;
+import ru.vidtu.ias.utils.Expression;
+import ru.vidtu.ias.utils.SkinRenderer;
+import the_fireplace.ias.gui.GuiAccountSelector;
+import the_fireplace.ias.gui.GuiButtonWithImage;
 /**
  * @author The_Fireplace
  */
 @Mod("ias")
 public class IAS {
-	public static Properties config = new Properties();
-	public static void syncConfig(boolean save) {
-		config.setProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE));
-		config.setProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG));
-		config.setProperty(ConfigValues.TEXT_POS_NAME + ".x", ConfigValues.TEXT_X);
-		config.setProperty(ConfigValues.TEXT_POS_NAME + ".y", ConfigValues.TEXT_Y);
-		config.setProperty(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME, String.valueOf(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN));
-		if (save) {
-			try {
-				Minecraft mc = Minecraft.getInstance();
-				File f = new File(mc.gameDirectory, "config/ias.properties");
-				f.getParentFile().mkdirs();
-				FileWriter fw = new FileWriter(f);
-				config.store(fw, "IAS config");
-				fw.close();
-			} catch (Throwable t) {
-				System.err.println("Unable to save IAS config");
-				t.printStackTrace();
-			}
-		}
-	}
-	
+	public static final Gson GSON = new Gson();
+	public static final Logger LOG = LogManager.getLogger("IAS");
+	private static int textX, textY;
 	public IAS() {
-		try {
-			Minecraft mc = Minecraft.getInstance();
-			File f = new File(mc.gameDirectory, "config/ias.properties");
-			if (f.exists()) {
-				FileReader fr = new FileReader(f);
-				config.load(fr);
-				fr.close();
-			}
-			ConfigValues.CASESENSITIVE = Boolean.parseBoolean(config.getProperty(ConfigValues.CASESENSITIVE_NAME, String.valueOf(ConfigValues.CASESENSITIVE_DEFAULT)));
-			ConfigValues.ENABLERELOG = Boolean.parseBoolean(config.getProperty(ConfigValues.ENABLERELOG_NAME, String.valueOf(ConfigValues.ENABLERELOG_DEFAULT)));
-			ConfigValues.TEXT_X = config.getProperty(ConfigValues.TEXT_POS_NAME + ".x", "");
-			ConfigValues.TEXT_Y = config.getProperty(ConfigValues.TEXT_POS_NAME + ".y", "");
-			ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN = Boolean.parseBoolean(config.getProperty(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_NAME, String.valueOf(ConfigValues.SHOW_ON_MULTIPLAYER_SCREEN_DEFAULT)));
-		} catch (Throwable t) {
-			System.err.println("Unable to load IAS config");
-			t.printStackTrace();
-		}
 		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, s) -> new IASConfigScreen(s));
-		syncConfig(false);
-		try {
-			Class.forName("net.minecraft.util.math.MathHelper");
-		} catch (Throwable t) {
-			Standards.updateFolder();
-		}
-		MR.init();
-		MinecraftForge.EVENT_BUS.register(new ClientEvents());
-		Standards.importAccounts();
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientComplete);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::postInitialize);
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	public void onClientComplete(FMLLoadCompleteEvent event) {
-		SkinTools.cacheSkins(false);
+	public void postInitialize(FMLLoadCompleteEvent event) {
+		Minecraft mc = Minecraft.getInstance();
+		Config.load(mc);
+		Converter.convert(mc);
+		SkinRenderer.loadAllAsync(mc, false, () -> {});
+	}
+	
+	@SubscribeEvent
+	public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
+		if (event.getGui() instanceof MainMenuScreen) {
+			try {
+				if (StringUtils.isNotBlank(Config.textX) && StringUtils.isNotBlank(Config.textY)) {
+					textX = (int) new Expression(Config.textX.replace("%width%", Integer.toString(event.getGui().width)).replace("%height%", Integer.toString(event.getGui().height))).parse(0);
+					textY = (int) new Expression(Config.textY.replace("%width%", Integer.toString(event.getGui().width)).replace("%height%", Integer.toString(event.getGui().height))).parse(0);
+				} else {
+					textX = event.getGui().width / 2;
+					textY = event.getGui().height / 4 + 48 + 72 + 12 + 22;
+				}
+			} catch (Throwable t) {
+				t.printStackTrace();
+				textX = event.getGui().width / 2;
+				textY = event.getGui().height / 4 + 48 + 72 + 12 + 22;
+			}
+			if (Config.showOnTitleScreen) {
+				int btnX = event.getGui().width / 2 + 104;
+				int btnY = event.getGui().height / 4 + 48 + 60;
+				try {
+					if (StringUtils.isNotBlank(Config.btnX) && StringUtils.isNotBlank(Config.btnY)) {
+						btnX = (int) new Expression(Config.btnX.replace("%width%", Integer.toString(event.getGui().width)).replace("%height%", Integer.toString(event.getGui().height))).parse(0);
+						btnY = (int) new Expression(Config.btnY.replace("%width%", Integer.toString(event.getGui().width)).replace("%height%", Integer.toString(event.getGui().height))).parse(0);
+					}
+				} catch (Throwable t) {
+					t.printStackTrace();
+					btnX = event.getGui().width / 2 + 104;
+					btnY = event.getGui().height / 4 + 48 + 60;
+				}
+				event.addWidget(new GuiButtonWithImage(btnX, btnY, btn -> event.getGui().getMinecraft().setScreen(new GuiAccountSelector(event.getGui()))));
+			}
+		}
+		if (event.getGui() instanceof MultiplayerScreen) {
+			if (Config.showOnMPScreen) {
+				event.addWidget(new GuiButtonWithImage(event.getGui().width / 2 + 4 + 76 + 79, event.getGui().height - 28, btn -> {
+					event.getGui().getMinecraft().setScreen(new GuiAccountSelector(event.getGui()));
+				}));
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onGuiRender(GuiScreenEvent.DrawScreenEvent.Post event) {
+		if (event.getGui() instanceof MainMenuScreen) {
+			Minecraft mc = event.getGui().getMinecraft();
+			Screen.drawCenteredString(event.getMatrixStack(), mc.font, new TranslationTextComponent("ias.loggedinas",
+					mc.getUser().getName()), textX, textY, 0xFFCC8888);
+		}
+		if (event.getGui() instanceof MultiplayerScreen) {
+			Minecraft mc = event.getGui().getMinecraft();
+			if (mc.getUser().getAccessToken().equals("0") || mc.getUser().getAccessToken().equals("-")) {
+				List<IReorderingProcessor> list = mc.font.split(new TranslationTextComponent("ias.offlinemode"), event.getGui().width);
+				for (int i = 0; i < list.size(); i++) {
+					mc.font.drawShadow(event.getMatrixStack(), list.get(i), event.getGui().width / 2 - mc.font.width(list.get(i)) / 2, i * 9 + 1, 16737380);
+				}
+			}
+		}
 	}
 }
