@@ -8,8 +8,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
-public class GuiPasswordField extends EditBox
-{
+public class GuiPasswordField extends EditBox {
 	public GuiPasswordField(Font fontrendererObj, int x, int y, int par5Width, int par6Height, Component s)
 	{
 		super(fontrendererObj, x, y, par5Width, par6Height, s);

@@ -12,8 +12,6 @@ import net.minecraft.client.gui.screens.Screen;
 public class Tools {
 	/**
 	 * Draws a rectangle with a border
-	 * @param ms
-	 * MatrixStack 
 	 * @param x
 	 * First corner x
 	 * @param y
