@@ -14,9 +14,9 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:1.15.2"
-	mappings "net.fabricmc:yarn:1.15.2+build.17:v2"
-	modImplementation "net.fabricmc:fabric-loader:0.11.6"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:0.28.5+1.15"
+    mappings "net.fabricmc:yarn:1.15.2+build.17:v2"
+    modImplementation "net.fabricmc:fabric-loader:0.12.1"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.28.5+1.15"
 	modImplementation "com.terraformersmc:modmenu:1.10.6"
 }
 
@@ -29,11 +29,14 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 processResources {
+	inputs.property "version", project.version
 	filesMatching("fabric.mod.json") {
-		expand "version": System.getProperty("ias.version", "unknown")
+		expand "version": project.version
 	}
 }
 
-java {
-	//withSourcesJar()
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
 }
