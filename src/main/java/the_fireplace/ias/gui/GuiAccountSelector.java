@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
@@ -256,7 +257,7 @@ public class GuiAccountSelector extends Screen {
 			if (empty()) return;
 			Account acc = getSelected().account;
 			acc.use();
-			minecraft.user = new User(acc.alias(), UUIDTypeAdapter.fromUUID(new UUID(0, 0)), "0", "legacy");
+			minecraft.user = new User(acc.alias(), UUIDTypeAdapter.fromUUID(new UUID(0, 0)), "0", Optional.empty(), Optional.empty(), User.Type.LEGACY);
 		}
 		
 		public void edit() {

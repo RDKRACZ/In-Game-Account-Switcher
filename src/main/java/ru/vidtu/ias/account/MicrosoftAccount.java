@@ -1,5 +1,6 @@
 package ru.vidtu.ias.account;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -41,7 +42,7 @@ public class MicrosoftAccount implements Account {
 				return;
 			}
 			mc.execute(() -> {
-				mc.user = new User(username, UUIDTypeAdapter.fromUUID(uuid), accessToken, "mojang");
+				mc.user = new User(username, UUIDTypeAdapter.fromUUID(uuid), accessToken, Optional.empty(), Optional.empty(), User.Type.MSA);
 				handler.accept(null);
 			});
 		}, "IAS MS Reauth Thread").start();
